@@ -1,0 +1,184 @@
+create database classActivity01;
+use classActivity01;
+
+create table productLines(
+productline VARCHAR(50) PRIMARY KEY,
+textDescription VARCHAR(4000),
+htmlDescription mediumtext,
+image MEDIUMBLOB
+);
+select * from productLines;
+create table products(
+productCode VARCHAR(15) PRIMARY KEY,
+productName VARCHAR(70) NOT NULL,
+productLine VARCHAR(50),
+productScale VARCHAR(10) NOT NULL,
+productVendor VARCHAR(50) NOT NULL,
+productDescription TEXT NOT NULL,
+quantityInStock SMALLINT NOT NULL,
+buyPrice DECIMAL(10, 2) NOT NULL,
+MSRP DECIMAL(10, 2) NOT NULL,
+constraint fk foreign key (productLine)
+references productlines(productLine)
+);
+drop table products;
+create table employees(
+employeeNumber INT PRIMARY KEY,
+lastName VARCHAR(50) NOT NULL,
+firstName VARCHAR(50) NOT NULL,
+extension VARCHAR(10) NOT NULL,
+email VARCHAR(100) NOT NULL,
+officeCode VARCHAR(10),
+reportsTo int,
+jobTitle varchar(50) NOT NULL,
+constraint gk foreign key (officeCode)
+references offices(officeCode),
+constraint rk foreign key (reportsTo)
+references employees(employeeNumber)
+);
+
+create table offices(
+officeCode VARCHAR(10) PRIMARY KEY,
+city VARCHAR(50) NOT NULL,
+phone VARCHAR(50) NOT NULL,
+addressLine1 VARCHAR(50) NOT NULL,
+addressLine2 VARCHAR(50),
+state VARCHAR(50),
+country VARCHAR(50) NOT NULL,
+postalCode VARCHAR(15) NOT NULL,
+territory VARCHAR(10) NOT NULL
+);
+
+create table customers(
+customerNumber INT PRIMARY KEY,
+customerName VARCHAR(50) NOT NULL,
+contactLastName VARCHAR(50) NOT NULL,
+contactFirstName VARCHAR(50) NOT NULL,
+phone VARCHAR(50) NOT NULL,
+addressLine1 VARCHAR(50) NOT NULL,
+addressLine2 VARCHAR(50),
+city VARCHAR(50) NOT NULL,
+state VARCHAR(50),
+postalCode VARCHAR(15),
+country VARCHAR(50) NOT NULL,
+salesRepEmployeeNumber INT, 
+creditLimit DECIMAL(10, 2),
+constraint hk foreign key (salesRepEmployeeNumber)
+references employees(employeeNumber)
+);
+
+
+create table orders(
+orderNumber INT PRIMARY KEY,
+orderDate DATE NOT NULL,
+requiredDate DATE NOT NULL,
+shippedDate DATE,
+status VARCHAR(15) NOT NULL,
+comments TEXT,
+customerNumber INT,
+constraint lk foreign key (customerNumber)
+references customers(customerNumber)
+);
+
+create table orderDetails(
+orderNumber INT,
+productCode VARCHAR(15),
+quantityOrdered INT NOT NULL,
+priceEach DECIMAL(10, 2) NOT NULL,
+orderLineNumber SMALLINT NOT NULL,
+primary key(orderNumber,productCode),
+constraint qk foreign key (orderNumber)
+					references orders(orderNumber),
+constraint mk foreign key (productCode)
+					references products(productCode)
+);
+
+create table payments(
+customerNumber INT,
+checkNumber VARCHAR(50) PRIMARY KEY,
+paymentDate DATE NOT NULL,
+amount DECIMAL(10, 2) NOT NULL,
+constraint ak foreign key (customerNumber)
+					references customers(customerNumber)
+);
+
+-- Insert data into productlines
+INSERT INTO productlines (productLine, textDescription) VALUES
+('Classic Cars', 'Cars from the 1950s and 1960s'),
+('Motorcycles', 'A range of motorcycles');
+
+-- Insert data into products
+INSERT INTO products (productCode, productName, productLine, productScale, productVendor, productDescription, quantityInStock, buyPrice, MSRP) VALUES
+('S10_1678', '1969 Harley Davidson Ultimate Chopper', 'Motorcycles', '1:10', 'Min Lin Diecast', 'This replica features working kickstand, front suspension, gear-shift lever.', 7933, 48.81, 95.70);
+
+-- Insert data into offices
+INSERT INTO offices (officeCode, city, phone, addressLine1, addressLine2, state, country, postalCode, territory) VALUES
+('1', 'San Francisco', '+1 650 219 4782', '100 Market Street', 'Suite 300', 'CA', 'USA', '94080', 'NA');
+
+-- Insert data into employees
+INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, officeCode, reportsTo, jobTitle) VALUES
+(1002, 'Murphy', 'Diane', 'x5800', 'dmurphy@classicmodelcars.com', '1', NULL, 'President');
+
+-- Insert data into customers
+INSERT INTO customers (customerNumber, customerName, contactLastName, contactFirstName, phone, addressLine1, city, country, postalCode, creditLimit) VALUES
+(103, 'Atelier graphique', 'Schmitt', 'Carine', '40.32.2555', '54, rue Royale', 'Nantes', 'France', 1370, 21000.00);
+
+-- Insert data into orders
+INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, customerNumber) VALUES
+(10100, '2003-01-06', '2003-01-13', '2003-01-10', 'Shipped', 103);
+
+-- Insert data into orderdetails
+INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber) VALUES
+(10100, 'S10_1678', 30, 95.70, 1);
+
+-- Insert data into payments
+INSERT INTO payments (customerNumber, checkNumber, paymentDate, amount) VALUES
+(103, 'HQ336336', '2004-10-19', 6066.78);
+
+-- Insert data into productlines
+INSERT INTO productlines (productLine, textDescription) VALUES
+('Planes', 'Scale models of airplanes'),
+('Ships', 'Scale models of ships'),
+('Trains', 'Model trains and railroads');
+
+-- Insert data into products
+INSERT INTO products (productCode, productName, productLine, productScale, productVendor, productDescription, quantityInStock, buyPrice, MSRP) VALUES
+('S12_1108', '1969 Ford Falcon', 'Classic Cars', '1:12', 'Gearbox Collectibles', 'Highly detailed model of the 1969 Ford Falcon.', 2177, 85.69, 170.95),
+('S18_1662', '1970 Plymouth Hemi Cuda', 'Classic Cars', '1:18', 'Motor City Art Classics', 'Superb detailing with a high gloss finish.', 1252, 31.53, 63.50),
+('S32_2509', 'Corsair F4U ( Bird Cage)', 'Planes', '1:32', 'Second Gear Diecast', 'Features retractable landing gear and folding wings.', 2928, 66.20, 125.00);
+
+-- Insert data into offices
+INSERT INTO offices (officeCode, city, phone, addressLine1, addressLine2, state, country, postalCode, territory) VALUES
+('3', 'New York', '+1 212 555 3000', '523 East 53rd Street', 'apt. 5A', 'NY', 'USA', '10022', 'NA'),
+('4', 'Paris', '+33 1 44 76 30 00', '43 Rue Jouffroy', NULL, NULL, 'France', '75017', 'EMEA'),
+('5', 'Tokyo', '+81 3 3406 6000', '4-1-1 Akasaka', 'Minato-ku', NULL, 'Japan', '107-0052', 'APAC');
+
+-- Insert data into employees
+INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, officeCode, reportsTo, jobTitle) VALUES
+(1076, 'Firrelli', 'Jeff', 'x9273', 'jfirrelli@classicmodelcars.com', '2', 1056, 'VP Marketing'),
+(1088, 'Patterson', 'William', 'x4871', 'wpatterson@classicmodelcars.com', '3', 1002, 'VP Finance'),
+(1102, 'Bondur', 'Gerard', 'x5408', 'gbondur@classicmodelcars.com', '4', 1002, 'VP Operations');
+
+-- Insert data into customers
+INSERT INTO customers (customerNumber, customerName, contactLastName, contactFirstName, phone, addressLine1, city, country, postalCode, creditLimit) VALUES
+(114, 'Australian Collectors, Co.', 'Ferguson', 'Peter', '03 9520 4555', '636 St Kilda Road', 'Melbourne', 'Australia', 3004, 117300.00),
+(119, 'La Rochelle Gifts', 'Labrune', 'Janine', '40.67.8555', '67, rue des Cinquante Otages', 'Nantes', 'France', 44000, 118200.00),
+(121, 'Baane Mini Imports', 'Bergulfsen', 'Jonas', '07-98 9555', 'Erling Skakkes gate 78', 'Stavern', 'Norway', 4110, 81700.00);
+
+-- Insert data into orders
+INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, customerNumber) VALUES
+(10102, '2003-01-10', '2003-01-20', '2003-01-14', 'Shipped', 114),
+(10103, '2003-01-29', '2003-02-07', '2003-02-02', 'Shipped', 119),
+(10104, '2003-01-31', '2003-02-10', '2003-02-05', 'Shipped', 121);
+
+-- Insert data into orderdetails
+INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber) VALUES
+(10102, 'S12_1108', 25, 85.69, 3),
+(10103, 'S18_1662', 10, 31.53, 4),
+(10104, 'S32_2509', 5, 66.20, 5);
+
+-- Insert data into payments
+INSERT INTO payments (customerNumber, checkNumber, paymentDate, amount) VALUES
+(114, 'HQ336338', '2004-10-21', 9956.60),
+(119, 'HQ336339', '2004-10-22', 23480.40),
+(121, 'HQ336340', '2004-10-23', 15800.00);
